@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>초등 4·5·6학년 PAPS 통합 계산기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Malgun Gothic',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px;min-height:100vh}
+.container{max-width:930px;margin:0 auto;background:#fff;border-radius:20px;padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+h1{text-align:center;color:#667eea;margin-bottom:10px;font-size:28px}
+.subtitle{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:28px;font-size:14px;color:#666}
+.section{margin-bottom:24px;padding:20px;background:#f8f9fa;border-radius:12px}
+.section-title{font-size:18px;font-weight:700;color:#333;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #667eea}
+.guide-box{background:#eef2ff;border:1px solid #dbe4ff;color:#445;padding:14px;border-radius:10px;line-height:1.6;font-size:14px}
+.input-group{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.input-group:last-child{margin-bottom:0}
+.input-group label.main-label{min-width:180px;font-weight:600;color:#333}
+.input-group input,.input-group select{flex:1;padding:10px 12px;border:2px solid #ddd;border-radius:8px;font-size:16px;transition:border-color .2s,box-shadow .2s;min-width:180px}
+.input-group input:focus,.input-group select:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.12)}
+.unit{min-width:50px;color:#666;font-weight:600}
+.hint{font-size:12px;color:#777;margin-top:10px;text-align:center}
+.target-grade-selector{display:flex;gap:15px;flex-wrap:wrap;margin-top:10px}
+.target-grade-btn{flex:1;min-width:150px;padding:15px;border:3px solid #ddd;background:#fff;border-radius:10px;font-size:18px;font-weight:700;cursor:pointer;transition:all .25s;text-align:center;user-select:none}
+.target-grade-btn:hover{border-color:#667eea;transform:translateY(-2px)}
+.target-grade-btn.active{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-color:#667eea}
+.btn-calculate{width:100%;padding:16px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border:none;border-radius:10px;font-size:18px;font-weight:700;cursor:pointer;margin-top:6px;transition:transform .2s,box-shadow .2s}
+.btn-calculate:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(102,126,234,.35)}
+.live-score{min-width:185px;padding:9px 12px;border-radius:8px;background:#fff;border:1px dashed #c7cde8;color:#556;font-size:14px;line-height:1.4}
+.live-score.ready{background:#f3f6ff;border:1px solid #cfd8ff;color:#334;font-weight:600}
+.result-section{display:none;margin-top:30px;padding:25px;background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);border-radius:16px;color:#fff}
+.result-section.show{display:block}
+.result-title{font-size:22px;font-weight:700;text-align:center;margin-bottom:20px}
+.result-item{background:rgba(255,255,255,.2);padding:15px;border-radius:10px;margin-bottom:15px}
+.result-item-title{font-weight:700;font-size:16px;margin-bottom:8px}
+.result-detail{display:flex;justify-content:space-between;gap:10px;font-size:18px;margin-top:5px;flex-wrap:wrap}
+.grade-badge{display:inline-block;padding:5px 15px;border-radius:20px;background:#fff;color:#667eea;font-weight:700;font-size:16px}
+.total-result{background:rgba(255,255,255,.3);padding:20px;border-radius:12px;text-align:center;margin-top:20px}
+.total-score{font-size:46px;font-weight:700;margin:10px 0}
+.total-grade{font-size:30px;font-weight:700;margin-top:10px}
+.recommendation-section{background:rgba(255,255,255,.28);padding:20px;border-radius:12px;margin-top:20px}
+.recommendation-title{font-size:20px;font-weight:700;margin-bottom:15px;text-align:center}
+.recommendation-item{background:rgba(255,255,255,.18);padding:12px;border-radius:8px;margin-bottom:10px;font-size:15px;line-height:1.65}
+@media (max-width:700px){
+.container{padding:20px}
+.input-group{flex-direction:column;align-items:stretch}
+.input-group label.main-label{min-width:auto;margin-bottom:4px}
+.target-grade-btn{min-width:100%}
+h1{font-size:24px}
+.total-score{font-size:36px}
+.total-grade{font-size:24px}
+.live-score{min-width:auto;width:100%}
+.subtitle{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🏃‍♂️ 초등 4·5·6학년 PAPS 통합 계산기 🏃‍♀️</h1>
+<div class="subtitle">
+<span>학생건강체력평가 · 실시간 점수 계산</span>
+<span style="font-size:12px;color:#888;white-space:nowrap;">ⓒ 서울공진초등학교 교사 정현호</span>
+</div>
+
+<div class="section">
+<div class="section-title">입력 안내</div>
+<div class="guide-box">
+① 학년, 성별, 키, 몸무게를 먼저 입력하세요.<br>
+② 측정한 종목만 기록을 입력하세요.<br>
+③ 아직 측정하지 않은 종목은 빈칸으로 두면 됩니다.<br>
+④ 목표 등급을 선택한 뒤 <b>점수 계산하기</b>를 누르면 달성 가이드를 볼 수 있습니다.
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">기본 정보</div>
+<div class="input-group">
+<label class="main-label">학년</label>
+<select id="grade" onchange="updateLiveScores()">
+<option value="">선택하세요</option>
+<option value="4학년">4학년</option>
+<option value="5학년">5학년</option>
+<option value="6학년">6학년</option>
+</select>
+</div>
+<div class="input-group">
+<label class="main-label">성별</label>
+<select id="gender" onchange="updateLiveScores()">
+<option value="">선택하세요</option>
+<option value="남자">남자</option>
+<option value="여자">여자</option>
+</select>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">🎯 목표 등급 설정</div>
+<div class="target-grade-selector">
+<div class="target-grade-btn" onclick="selectTargetGrade(event, 1)">🥇 1등급 목표<br><small style="font-size:14px;font-weight:normal;">(80점 이상)</small></div>
+<div class="target-grade-btn" onclick="selectTargetGrade(event, 2)">🥈 2등급 목표<br><small style="font-size:14px;font-weight:normal;">(60점 이상)</small></div>
+<div class="target-grade-btn" onclick="selectTargetGrade(event, 3)">🥉 3등급 목표<br><small style="font-size:14px;font-weight:normal;">(40점 이상)</small></div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">체질량지수 (BMI)</div>
+<div class="input-group">
+<label class="main-label">키</label>
+<input type="number" id="height" placeholder="예: 140.2" step="0.1" oninput="updateLiveScores()">
+<span class="unit">cm</span>
+</div>
+<div class="input-group">
+<label class="main-label">몸무게</label>
+<input type="number" id="weight" placeholder="예: 38.4" step="0.1" oninput="updateLiveScores()">
+<span class="unit">kg</span>
+</div>
+<div class="input-group">
+<label class="main-label">BMI 실시간 확인</label>
+<div class="live-score" id="live-bmi">학년, 성별, 키와 몸무게를 입력하면 BMI 점수/등급이 나타납니다.</div>
+</div>
+<p class="hint">* BMI는 자동으로 계산됩니다.</p>
+</div>
+
+<div class="section">
+<div class="section-title">측정 기록 입력</div>
+<div class="input-group">
+<label class="main-label">50m 달리기</label>
+<input type="number" id="run50m" placeholder="예: 9.40" step="0.01" oninput="updateLiveScores()">
+<span class="unit">초</span>
+<div class="live-score" id="live-run50m">기록을 입력하면 점수/등급이 바로 보입니다.</div>
+</div>
+<div class="input-group">
+<label class="main-label">악력</label>
+<input type="number" id="grip" placeholder="예: 24.0" step="0.1" oninput="updateLiveScores()">
+<span class="unit">kg</span>
+<div class="live-score" id="live-grip">기록을 입력하면 점수/등급이 바로 보입니다.</div>
+</div>
+<div class="input-group">
+<label class="main-label">앉아윗몸앞으로굽히기</label>
+<input type="number" id="flexibility" placeholder="예: 8.5" step="0.1" oninput="updateLiveScores()">
+<span class="unit">cm</span>
+<div class="live-score" id="live-flexibility">기록을 입력하면 점수/등급이 바로 보입니다.</div>
+</div>
+<div class="input-group">
+<label class="main-label">왕복오래달리기</label>
+<input type="number" id="shuttle" placeholder="예: 75" oninput="updateLiveScores()">
+<span class="unit">회</span>
+<div class="live-score" id="live-shuttle">기록을 입력하면 점수/등급이 바로 보입니다.</div>
+</div>
+<p class="hint">* 학생이 노력과 연습으로 향상시키기 쉬운 종목을 뒤쪽에 배치했습니다.</p>
+</div>
+
+<button class="btn-calculate" onclick="calculatePAPS()">📊 점수 계산하기</button>
+
+<div class="result-section" id="resultSection">
+<div class="result-title">📋 측정 결과</div>
+<div id="resultDetails"></div>
+<div class="total-result">
+<div style="font-size:20px;">종합 점수</div>
+<div class="total-score" id="totalScore">-</div>
+<div style="font-size:20px;">종합 등급</div>
+<div class="total-grade" id="totalGrade">-</div>
+</div>
+<div id="recommendationSection"></div>
+</div>
+</div>
+
+<script>
+let targetGrade = null;
+function selectTargetGrade(evt, grade){
+ targetGrade = grade;
+ document.querySelectorAll('.target-grade-btn').forEach(btn => btn.classList.remove('active'));
+ evt.currentTarget.classList.add('active');
+}
+
+const gradeEventData = {
+'4학년':{
+'남자':{
+'50m달리기':[[20,5,8.7,1],[19,8.71,8.73,1],[18,8.74,8.75,1],[17,8.76,8.78,1],[16,8.79,8.8,1],[15,8.81,9.03,2],[14,9.04,9.25,2],[13,9.26,9.48,2],[12,9.49,9.7,2],[11,9.71,9.9,3],[10,9.91,10.1,3],[9,10.11,10.3,3],[8,10.31,10.5,3],[7,10.51,11.18,4],[6,11.19,11.85,4],[5,11.86,12.53,4],[4,12.54,13.2,4],[3,13.21,14.13,5],[2,14.14,15.07,5],[1,15.08,16,5],[0,16.01,30,5]],
+'악력':[[20,36,200,1],[19,34.8,35.9,1],[18,33.5,34.7,1],[17,32.3,33.4,1],[16,31,32.2,1],[15,27.9,30.9,2],[14,24.8,27.8,2],[13,21.6,24.7,2],[12,18.5,21.5,2],[11,17.6,18.4,3],[10,16.8,17.5,3],[9,15.9,16.7,3],[8,15,15.8,3],[7,14.1,14.9,4],[6,13.3,14,4],[5,12.4,13.2,4],[4,11.5,12.3,4],[3,10.7,11.4,5],[2,9.8,10.6,5],[1,9,9.7,5],[0,0,8.9,5]],
+'앉아윗몸앞으로굽히기':[[20,18,50,1],[19,15.5,17.9,1],[18,13,15.4,1],[17,10.5,12.9,1],[16,8,10.4,1],[15,7.3,7.9,2],[14,6.5,7.2,2],[13,5.8,6.4,2],[12,5,5.7,2],[11,4,4.9,3],[10,3,3.9,3],[9,2,2.9,3],[8,1,1.9,3],[7,-0.3,0.9,4],[6,-1.5,-0.4,4],[5,-2.8,-1.6,4],[4,-4,-2.9,4],[3,-4.3,-4.1,5],[2,-4.7,-4.4,5],[1,-5,-4.8,5],[0,-40,-5.1,5]],
+'왕복오래달리기':[[20,103,150,1],[19,101,102,1],[18,100,100,1],[17,98,99,1],[16,96,97,1],[15,89,95,2],[14,83,88,2],[13,76,82,2],[12,69,75,2],[11,63,68,3],[10,57,62,3],[9,51,56,3],[8,45,50,3],[7,40,44,4],[6,36,39,4],[5,31,35,4],[4,26,30,4],[3,24,25,5],[2,22,23,5],[1,20,21,5],[0,0,19,5]],
+'체질량지수':[[0,31.6,300,'고도비만'],[1,30,31.5,'고도비만'],[2,27.9,29.9,'경도비만'],[3,25.6,27.8,'경도비만'],[3,23.3,25.5,'경도비만'],[4,22.7,23.2,'과체중'],[4,22.1,22.6,'과체중'],[5,21.5,22,'과체중'],[6,20.8,21.4,'과체중'],[8,20,20.7,'정상'],[12,19.2,19.9,'정상'],[16,18.4,19.1,'정상'],[20,17.5,18.3,'정상'],[18,16.7,17.4,'정상'],[14,15.9,16.6,'정상'],[10,15.1,15.8,'정상'],[8,14.3,15,'정상'],[6,13.5,14.2,'마름'],[4,12.7,13.4,'마름'],[2,5,12.6,'마름'],[0,0,4.9,'마름']]
+},
+'여자':{
+'50m달리기':[[20,5,9.3,1],[19,9.31,9.33,1],[18,9.34,9.35,1],[17,9.36,9.38,1],[16,9.39,9.4,1],[15,9.41,9.65,2],[14,9.66,9.9,2],[13,9.91,10.15,2],[12,10.16,10.4,2],[11,10.41,10.55,3],[10,10.56,10.7,3],[9,10.71,10.85,3],[8,10.86,11,3],[7,11.01,11.58,4],[6,11.59,12.15,4],[5,12.16,12.73,4],[4,12.74,13.3,4],[3,13.31,15,5],[2,15.01,16.71,5],[1,16.72,18.41,5],[0,18.42,30,5]],
+'악력':[[20,33.6,200,1],[19,32.5,33.5,1],[18,31.3,32.4,1],[17,30.2,31.2,1],[16,29,30.1,1],[15,26.3,28.9,2],[14,23.5,26.2,2],[13,20.8,23.4,2],[12,18,20.7,2],[11,16.9,17.9,3],[10,15.8,16.8,3],[9,14.6,15.7,3],[8,13.5,14.5,3],[7,12.8,13.4,4],[6,12,12.7,4],[5,11.3,11.9,4],[4,10.5,11.2,4],[3,9.9,10.4,5],[2,9.2,9.8,5],[1,8.6,9.1,5],[0,0,8.5,5]],
+'앉아윗몸앞으로굽히기':[[20,22,50,1],[19,19,21.9,1],[18,16,18.9,1],[17,13,15.9,1],[16,10,12.9,1],[15,9.3,9.9,2],[14,8.5,9.2,2],[13,7.8,8.4,2],[12,7,7.7,2],[11,6.5,6.9,3],[10,6,6.4,3],[9,5.5,5.9,3],[8,5,5.4,3],[7,4,4.9,4],[6,3,3.9,4],[5,2,2.9,4],[4,1,1.9,4],[3,0.7,0.9,5],[2,0.3,0.6,5],[1,0,0.2,5],[0,-40,-0.1,5]],
+'왕복오래달리기':[[20,100,150,1],[19,94,99,1],[18,89,93,1],[17,83,88,1],[16,77,82,1],[15,72,76,2],[14,67,71,2],[13,62,66,2],[12,57,61,2],[11,53,56,3],[10,49,52,3],[9,44,48,3],[8,40,43,3],[7,35,39,4],[6,31,34,4],[5,26,30,4],[4,21,25,4],[3,20,20,5],[2,18,19,5],[1,17,17,5],[0,0,16,5]],
+'체질량지수':[[0,31.6,300,'고도비만'],[1,30,31.5,'고도비만'],[2,27.5,29.9,'경도비만'],[3,24.8,27.4,'경도비만'],[3,22.1,24.7,'경도비만'],[4,21.6,22,'과체중'],[4,21.1,21.5,'과체중'],[5,20.5,21,'과체중'],[6,19.9,20.4,'과체중'],[8,19.2,19.8,'정상'],[12,18.5,19.1,'정상'],[16,17.7,18.4,'정상'],[20,16.9,17.6,'정상'],[18,16.1,16.8,'정상'],[14,15.4,16,'정상'],[10,14.7,15.3,'정상'],[8,14,14.6,'정상'],[6,13.3,13.9,'마름'],[4,12.6,13.2,'마름'],[2,5,12.5,'마름'],[0,0,4.9,'마름']]
+}
+},
+'5학년':{
+'남자':{
+'50m달리기':[[20,5,8.3,1],[19,8.31,8.35,1],[18,8.36,8.4,1],[17,8.41,8.45,1],[16,8.46,8.5,1],[15,8.51,8.73,2],[14,8.74,8.95,2],[13,8.96,9.18,2],[12,9.19,9.4,2],[11,9.41,9.6,3],[10,9.61,9.8,3],[9,9.81,10,3],[8,10.01,10.2,3],[7,10.21,10.95,4],[6,10.96,11.7,4],[5,11.71,12.45,4],[4,12.46,13.2,4],[3,13.21,13.98,5],[2,13.99,14.77,5],[1,14.78,15.55,5],[0,15.56,30,5]],
+'악력':[[20,37,200,1],[19,35.5,36.9,1],[18,34,35.4,1],[17,32.5,33.9,1],[16,31,32.4,1],[15,29,30.9,2],[14,27,28.9,2],[13,25,26.9,2],[12,23,24.9,2],[11,21.5,22.9,3],[10,20,21.4,3],[9,18.5,19.9,3],[8,17,18.4,3],[7,15.9,16.9,4],[6,14.8,15.8,4],[5,13.6,14.7,4],[4,12.5,13.5,4],[3,11.7,12.4,5],[2,10.8,11.6,5],[1,10,10.7,5],[0,0,9.9,5]],
+'앉아윗몸앞으로굽히기':[[20,18,50,1],[19,15.5,17.9,1],[18,13,15.4,1],[17,10.5,12.9,1],[16,8,10.4,1],[15,7.3,7.9,2],[14,6.5,7.2,2],[13,5.8,6.4,2],[12,5,5.7,2],[11,4,4.9,3],[10,3,3.9,3],[9,2,2.9,3],[8,1,1.9,3],[7,-0.3,0.9,4],[6,-1.5,-0.4,4],[5,-2.8,-1.6,4],[4,-4,-2.9,4],[3,-4.3,-4.1,5],[2,-4.7,-4.4,5],[1,-5,-4.8,5],[0,-40,-5.1,5]],
+'왕복오래달리기':[[20,107,150,1],[19,105,106,1],[18,104,104,1],[17,102,103,1],[16,100,101,1],[15,93,99,2],[14,87,92,2],[13,80,86,2],[12,73,79,2],[11,67,72,3],[10,62,66,3],[9,56,61,3],[8,50,55,3],[7,45,49,4],[6,40,44,4],[5,34,39,4],[4,29,33,4],[3,27,28,5],[2,25,26,5],[1,23,24,5],[0,0,22,5]],
+'체질량지수':[[0,31.6,300,'고도비만'],[1,30,31.5,'고도비만'],[2,28.1,29.9,'경도비만'],[3,26.2,28,'경도비만'],[3,24.5,26.3,'경도비만'],[4,23.8,24.4,'과체중'],[4,23.1,23.7,'과체중'],[5,22.4,23,'과체중'],[6,21.7,22.3,'과체중'],[8,20.9,21.6,'정상'],[12,20,20.8,'정상'],[16,19.1,19.9,'정상'],[20,18.2,19,'정상'],[18,17.3,18.1,'정상'],[14,16.4,17.2,'정상'],[10,15.5,16.3,'정상'],[8,14.6,15.4,'정상'],[6,13.7,14.5,'마름'],[4,12.8,13.6,'마름'],[2,5,12.7,'마름'],[0,0,4.9,'마름']]
+},
+'여자':{
+'50m달리기':[[20,5,8.73,1],[19,8.74,8.77,1],[18,8.78,8.82,1],[17,8.83,8.86,1],[16,8.87,8.9,1],[15,8.91,9.15,2],[14,9.16,9.4,2],[13,9.41,9.65,2],[12,9.66,9.9,2],[11,9.91,10.1,3],[10,10.11,10.3,3],[9,10.31,10.5,3],[8,10.51,10.7,3],[7,10.71,11.28,4],[6,11.29,11.85,4],[5,11.86,12.43,4],[4,12.44,13,4],[3,13.01,13.97,5],[2,13.98,14.93,5],[1,14.94,15.9,5],[0,15.91,30,5]],
+'악력':[[20,35,200,1],[19,33.5,34.9,1],[18,32,33.4,1],[17,30.5,31.9,1],[16,29,30.4,1],[15,26.5,28.9,2],[14,24,26.4,2],[13,21.5,23.9,2],[12,19,21.4,2],[11,18.1,18.9,3],[10,17.3,18,3],[9,16.4,17.2,3],[8,15.5,16.3,3],[7,14.6,15.4,4],[6,13.8,14.5,4],[5,12.9,13.7,4],[4,12,12.8,4],[3,11.6,11.9,5],[2,11.1,11.5,5],[1,10.7,11,5],[0,0,10.6,5]],
+'앉아윗몸앞으로굽히기':[[20,22,50,1],[19,19,21.9,1],[18,16,18.9,1],[17,13,15.9,1],[16,10,12.9,1],[15,9.3,9.9,2],[14,8.5,9.2,2],[13,7.8,8.4,2],[12,7,7.7,2],[11,6.5,6.9,3],[10,6,6.4,3],[9,5.5,5.9,3],[8,5,5.4,3],[7,4,4.9,4],[6,3,3.9,4],[5,2,2.9,4],[4,1,1.9,4],[3,0.7,0.9,5],[2,0.3,0.6,5],[1,0,0.2,5],[0,-40,-0.1,5]],
+'왕복오래달리기':[[20,104,150,1],[19,99,103,1],[18,95,98,1],[17,90,94,1],[16,85,89,1],[15,80,84,2],[14,74,79,2],[13,69,73,2],[12,63,68,2],[11,59,62,3],[10,54,58,3],[9,50,53,3],[8,45,49,3],[7,40,44,4],[6,34,39,4],[5,29,33,4],[4,23,28,4],[3,22,22,5],[2,20,21,5],[1,19,19,5],[0,0,18,5]],
+'체질량지수':[[0,31.6,300,'고도비만'],[1,30,31.5,'고도비만'],[2,27.7,29.9,'경도비만'],[3,25.4,27.6,'경도비만'],[3,23.1,25.3,'경도비만'],[4,22.5,23,'과체중'],[4,21.9,22.4,'과체중'],[5,21.3,21.8,'과체중'],[6,20.7,21.2,'과체중'],[8,19.9,20.6,'정상'],[12,19.1,19.8,'정상'],[16,18.3,19,'정상'],[20,17.5,18.2,'정상'],[18,16.7,17.4,'정상'],[14,15.9,16.6,'정상'],[10,15.1,15.8,'정상'],[8,14.3,15,'정상'],[6,13.5,14.2,'마름'],[4,12.7,13.4,'마름'],[2,5,12.6,'마름'],[0,0,4.9,'마름']]
+}
+},
+'6학년':{
+'남자':{
+'50m달리기':[[20,5,7.77,1],[19,7.78,7.85,1],[18,7.86,7.94,1],[17,7.95,8.02,1],[16,8.03,8.1,1],[15,8.11,8.35,2],[14,8.36,8.6,2],[13,8.61,8.85,2],[12,8.86,9.1,2],[11,9.11,9.33,3],[10,9.34,9.55,3],[9,9.56,9.78,3],[8,9.79,10,3],[7,10.01,10.63,4],[6,10.64,11.25,4],[5,11.26,11.88,4],[4,11.89,12.5,4],[3,12.51,13.5,5],[2,13.51,14.5,5],[1,14.51,15.5,5],[0,15.51,30,5]],
+'악력':[[20,39.4,200,1],[19,38.3,39.3,1],[18,37.2,38.2,1],[17,36.1,37.1,1],[16,35,36,1],[15,32.9,34.9,2],[14,30.8,32.8,2],[13,28.6,30.7,2],[12,26.5,28.5,2],[11,24.6,26.4,3],[10,22.8,24.5,3],[9,20.9,22.7,3],[8,19,20.8,3],[7,18,18.9,4],[6,17,17.9,4],[5,16,16.9,4],[4,15,15.9,4],[3,13.8,14.9,5],[2,12.5,13.7,5],[1,11.3,12.4,5],[0,0,11.2,5]],
+'앉아윗몸앞으로굽히기':[[20,18,50,1],[19,15.5,17.9,1],[18,13,15.4,1],[17,10.5,12.9,1],[16,8,10.4,1],[15,7.3,7.9,2],[14,6.5,7.2,2],[13,5.8,6.4,2],[12,5,5.7,2],[11,4,4.9,3],[10,3,3.9,3],[9,2,2.9,3],[8,1,1.9,3],[7,-0.3,0.9,4],[6,-1.5,-0.4,4],[5,-2.8,-1.6,4],[4,-4,-2.9,4],[3,-4.3,-4.1,5],[2,-4.7,-4.4,5],[1,-5,-4.8,5],[0,-40,-5.1,5]],
+'왕복오래달리기':[[20,112,150,1],[19,110,111,1],[18,108,109,1],[17,106,107,1],[16,104,105,1],[15,98,103,2],[14,91,97,2],[13,85,90,2],[12,78,84,2],[11,72,77,3],[10,66,71,3],[9,60,65,3],[8,54,59,3],[7,49,53,4],[6,43,48,4],[5,38,42,4],[4,32,37,4],[3,29,31,5],[2,26,28,5],[1,23,25,5],[0,0,22,5]],
+'체질량지수':[[0,31.6,300,'고도비만'],[1,30,31.5,'고도비만'],[2,28.4,29.9,'경도비만'],[3,26.7,28.3,'경도비만'],[3,25,26.6,'경도비만'],[4,24.4,24.9,'과체중'],[4,23.8,24.3,'과체중'],[5,23.2,23.7,'과체중'],[6,22.6,23.1,'과체중'],[8,21.7,22.5,'정상'],[12,20.7,21.6,'정상'],[16,19.7,20.6,'정상'],[20,18.7,19.6,'정상'],[18,17.7,18.6,'정상'],[14,16.7,17.6,'정상'],[10,15.8,16.6,'정상'],[8,14.9,15.7,'정상'],[6,14,14.8,'마름'],[4,13.1,13.9,'마름'],[2,5,13,'마름'],[0,0,4.9,'마름']]
+},
+'여자':{
+'50m달리기':[[20,5,8.66,1],[19,8.67,8.72,1],[18,8.73,8.78,1],[17,8.79,8.84,1],[16,8.85,8.9,1],[15,8.91,9.13,2],[14,9.14,9.35,2],[13,9.36,9.58,2],[12,9.59,9.8,2],[11,9.81,10.03,3],[10,10.04,10.25,3],[9,10.26,10.48,3],[8,10.49,10.7,3],[7,10.71,11.25,4],[6,11.26,11.8,4],[5,11.81,12.35,4],[4,12.36,12.9,4],[3,12.91,13.6,5],[2,13.61,14.3,5],[1,14.31,15,5],[0,15.01,30,5]],
+'악력':[[20,39,200,1],[19,37.5,38.9,1],[18,36,37.4,1],[17,34.5,35.9,1],[16,33,34.4,1],[15,30.3,32.9,2],[14,27.5,30.2,2],[13,24.8,27.4,2],[12,22,24.7,2],[11,21.3,21.9,3],[10,20.5,21.2,3],[9,19.8,20.4,3],[8,19,19.7,3],[7,17.8,18.9,4],[6,16.5,17.7,4],[5,15.3,16.4,4],[4,14,15.2,4],[3,12.7,13.9,5],[2,11.4,12.6,5],[1,10.1,11.3,5],[0,0,10,5]],
+'앉아윗몸앞으로굽히기':[[20,26,50,1],[19,23,25.9,1],[18,20,22.9,1],[17,17,19.9,1],[16,14,16.9,1],[15,13,13.9,2],[14,12,12.9,2],[13,11,11.9,2],[12,10,10.9,2],[11,8.8,9.9,3],[10,7.5,8.7,3],[9,6.3,7.4,3],[8,5,6.2,3],[7,4.3,4.9,4],[6,3.5,4.2,4],[5,2.8,3.4,4],[4,2,2.7,4],[3,1.3,1.9,5],[2,0.7,1.2,5],[1,0,0.6,5],[0,-40,-0.1,5]],
+'왕복오래달리기':[[20,112,150,1],[19,107,111,1],[18,103,106,1],[17,98,102,1],[16,93,97,1],[15,87,92,2],[14,81,86,2],[13,75,80,2],[12,69,74,2],[11,64,68,3],[10,60,63,3],[9,55,59,3],[8,50,54,3],[7,44,49,4],[6,38,43,4],[5,31,37,4],[4,25,30,4],[3,24,24,5],[2,22,23,5],[1,21,21,5],[0,0,20,5]],
+'체질량지수':[[0,31.6,300,'고도비만'],[1,30,31.5,'고도비만'],[2,28,29.9,'경도비만'],[3,26,27.9,'경도비만'],[3,24,25.9,'경도비만'],[4,23.4,23.9,'과체중'],[4,22.8,23.3,'과체중'],[5,22.2,22.7,'과체중'],[6,21.5,22.1,'과체중'],[8,20.7,21.4,'정상'],[12,19.9,20.6,'정상'],[16,19,19.8,'정상'],[20,18.1,18.9,'정상'],[18,17.2,18,'정상'],[14,16.3,17.1,'정상'],[10,15.5,16.2,'정상'],[8,14.7,15.4,'정상'],[6,13.9,14.6,'마름'],[4,13.1,13.8,'마름'],[2,5,13,'마름'],[0,0,4.9,'마름']]
+}
+}
+};
+
+function getCurrentTable(){
+ const grade = document.getElementById('grade').value;
+ const gender = document.getElementById('gender').value;
+ if(!grade || !gender) return null;
+ return gradeEventData[grade][gender];
+}
+function getScore(event, value){
+ const table = getCurrentTable();
+ if(!table || isNaN(value)) return null;
+ const rows = table[event];
+ for(const row of rows){
+   if(value >= row[1] && value <= row[2]){
+      return {점수: row[0], 등급: row[3]};
+   }
+ }
+ return {점수:0, 등급:5};
+}
+function getValueRangeForScore(event, targetScore){
+ const table = getCurrentTable();
+ const rows = table[event];
+ for(const row of rows){
+   if(row[0] === targetScore) return {시작:row[1], 종료:row[2]};
+ }
+ return null;
+}
+function calculateBMI(height, weight){ return weight / ((height / 100) ** 2); }
+function formatGuide(eventName, range, unit){
+ if(!range) return '-';
+ if(eventName === '50m달리기') return `${range.종료}${unit} ~ ${range.시작}${unit}`;
+ return `${range.시작}${unit} ~ ${range.종료}${unit}`;
+}
+function totalToGrade(total){
+ if(total >= 80) return '1등급';
+ if(total >= 60) return '2등급';
+ if(total >= 40) return '3등급';
+ if(total >= 20) return '4등급';
+ return '5등급';
+}
+function gradeText(grade){ return typeof grade === 'number' ? `${grade}등급` : grade; }
+function setLiveBox(id, text, ready=false){
+ const box = document.getElementById(id);
+ box.textContent = text;
+ box.classList.toggle('ready', ready);
+}
+function updateLiveScores(){
+ const grade = document.getElementById('grade').value;
+ const gender = document.getElementById('gender').value;
+ const hasBase = grade && gender;
+
+ const height = parseFloat(document.getElementById('height').value);
+ const weight = parseFloat(document.getElementById('weight').value);
+ if(hasBase && !isNaN(height) && !isNaN(weight) && height > 0 && weight > 0){
+   const bmi = calculateBMI(height, weight);
+   const result = getScore('체질량지수', bmi);
+   if(result) setLiveBox('live-bmi', `BMI ${bmi.toFixed(1)} · ${result.점수}점 · ${gradeText(result.등급)}`, true);
+ } else {
+   setLiveBox('live-bmi', '학년, 성별, 키와 몸무게를 입력하면 BMI 점수/등급이 나타납니다.');
+ }
+
+ const mappings = [
+   {input:'run50m', event:'50m달리기', box:'live-run50m'},
+   {input:'grip', event:'악력', box:'live-grip'},
+   {input:'flexibility', event:'앉아윗몸앞으로굽히기', box:'live-flexibility'},
+   {input:'shuttle', event:'왕복오래달리기', box:'live-shuttle'}
+ ];
+ mappings.forEach(item => {
+   const raw = document.getElementById(item.input).value.trim();
+   if(!hasBase){ setLiveBox(item.box, '먼저 학년과 성별을 선택하세요.'); return; }
+   if(raw === ''){ setLiveBox(item.box, '기록을 입력하면 점수/등급이 바로 보입니다.'); return; }
+   const value = parseFloat(raw);
+   const result = getScore(item.event, value);
+   if(result) setLiveBox(item.box, `${result.점수}점 · ${gradeText(result.등급)}`, true);
+   else setLiveBox(item.box, '입력값을 확인하세요.');
+ });
+}
+
+function calculatePAPS(){
+ const grade = document.getElementById('grade').value;
+ const gender = document.getElementById('gender').value;
+ const height = parseFloat(document.getElementById('height').value);
+ const weight = parseFloat(document.getElementById('weight').value);
+
+ if(!grade) return alert('학년을 선택해주세요.');
+ if(!gender) return alert('성별을 선택해주세요.');
+ if(!height || !weight) return alert('키와 몸무게를 입력해주세요.');
+
+ const bmi = calculateBMI(height, weight);
+ const bmiResult = getScore('체질량지수', bmi);
+
+ const events = [
+   {name:'50m달리기', id:'run50m', unit:'초'},
+   {name:'악력', id:'grip', unit:'kg'},
+   {name:'앉아윗몸앞으로굽히기', id:'flexibility', unit:'cm'},
+   {name:'왕복오래달리기', id:'shuttle', unit:'회'}
+ ];
+ const measuredEvents = [];
+ const unmeasuredEvents = [];
+ let totalMeasuredScore = bmiResult.점수;
+
+ events.forEach(event => {
+   const raw = document.getElementById(event.id).value.trim();
+   if(raw === ''){ unmeasuredEvents.push(event); return; }
+   const value = parseFloat(raw);
+   const result = getScore(event.name, value);
+   measuredEvents.push({...event, value, 점수:result.점수, 등급:result.등급});
+   totalMeasuredScore += result.점수;
+ });
+
+ let resultDetails = `
+   <div class="result-item">
+     <div class="result-item-title">📏 체질량지수 (BMI)</div>
+     <div class="result-detail">
+       <span>BMI: ${bmi.toFixed(1)}</span>
+       <span>${bmiResult.점수}점 <span class="grade-badge">${gradeText(bmiResult.등급)}</span></span>
+     </div>
+   </div>
+ `;
+ measuredEvents.forEach(measured => {
+   const emoji = measured.name === '왕복오래달리기' ? '🏃' : measured.name === '앉아윗몸앞으로굽히기' ? '🤸' : measured.name === '악력' ? '💪' : '⚡';
+   resultDetails += `
+     <div class="result-item">
+       <div class="result-item-title">${emoji} ${measured.name}</div>
+       <div class="result-detail">
+         <span>${measured.value}${measured.unit}</span>
+         <span>${measured.점수}점 <span class="grade-badge">${measured.등급}등급</span></span>
+       </div>
+     </div>
+   `;
+ });
+ unmeasuredEvents.forEach(event => {
+   const emoji = event.name === '왕복오래달리기' ? '🏃' : event.name === '앉아윗몸앞으로굽히기' ? '🤸' : event.name === '악력' ? '💪' : '⚡';
+   resultDetails += `
+     <div class="result-item" style="opacity:.65;">
+       <div class="result-item-title">${emoji} ${event.name}</div>
+       <div class="result-detail"><span>측정 전</span><span>-점</span></div>
+     </div>
+   `;
+ });
+ document.getElementById('resultDetails').innerHTML = resultDetails;
+
+ let currentGrade = '';
+ if(unmeasuredEvents.length === 0){
+   currentGrade = totalToGrade(totalMeasuredScore);
+   document.getElementById('totalScore').textContent = `${totalMeasuredScore}점`;
+   document.getElementById('totalGrade').textContent = currentGrade;
+ } else {
+   document.getElementById('totalScore').textContent = `${totalMeasuredScore}점 (측정 중)`;
+   document.getElementById('totalGrade').textContent = '모든 종목 입력 후 확인';
+   currentGrade = totalToGrade(totalMeasuredScore);
+ }
+ generateRecommendations(measuredEvents, unmeasuredEvents, totalMeasuredScore, currentGrade);
+ document.getElementById('resultSection').classList.add('show');
+ document.getElementById('resultSection').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function generateRecommendations(measuredEvents, unmeasuredEvents, totalMeasuredScore, currentGrade){
+ let recommendationHTML = '';
+ if(!targetGrade){
+   recommendationHTML = `<div class="recommendation-section"><div class="recommendation-title">💡 목표 등급을 선택해보세요</div><div class="recommendation-item">위의 <b>목표 등급 설정</b>에서 원하는 등급을 누르면, 현재 점수 기준으로 필요한 기록 가이드를 보여줍니다.</div></div>`;
+   document.getElementById('recommendationSection').innerHTML = recommendationHTML;
+   return;
+ }
+ const targetScoreMap = {1:80, 2:60, 3:40};
+ const requiredScore = targetScoreMap[targetGrade];
+
+ if(unmeasuredEvents.length > 0){
+   const remainingScore = requiredScore - totalMeasuredScore;
+   recommendationHTML = `<div class="recommendation-section"><div class="recommendation-title">🎯 ${targetGrade}등급 달성 가이드</div>`;
+   if(remainingScore <= 0){
+     recommendationHTML += `<div class="recommendation-item">✨ 현재 입력한 종목 기준으로도 이미 ${targetGrade}등급에 필요한 점수 이상입니다.<br>남은 종목도 기록을 입력하면 더 정확한 결과를 볼 수 있어요.</div>`;
+   } else if(remainingScore > unmeasuredEvents.length * 20){
+     recommendationHTML += `<div class="recommendation-item">현재 점수로는 남은 ${unmeasuredEvents.length}개 종목만으로 ${targetGrade}등급 달성이 어렵습니다.<br>이미 측정한 종목 기록을 다시 확인하거나 전체 측정 후 종합적으로 보는 것이 좋습니다.</div>`;
+   } else {
+     const averagePerEvent = Math.ceil(remainingScore / unmeasuredEvents.length);
+     recommendationHTML += `<div class="recommendation-item">목표 점수: <b>${requiredScore}점 이상</b><br>현재 점수: ${totalMeasuredScore}점<br>남은 종목에서 필요한 점수: <b>${remainingScore}점</b><br>남은 종목당 대략 <b>${averagePerEvent}점 이상</b>이 필요합니다.</div>`;
+     unmeasuredEvents.forEach(event => {
+       const range = getValueRangeForScore(event.name, averagePerEvent);
+       recommendationHTML += `<div class="recommendation-item"><b>${event.name}</b><br>권장 점수: ${averagePerEvent}점 이상<br>필요 기록: ${formatGuide(event.name, range, event.unit)}</div>`;
+     });
+   }
+   recommendationHTML += `</div>`;
+   document.getElementById('recommendationSection').innerHTML = recommendationHTML;
+   return;
+ }
+
+ const currentGradeNum = currentGrade === '1등급' ? 1 : currentGrade === '2등급' ? 2 : currentGrade === '3등급' ? 3 : currentGrade === '4등급' ? 4 : 5;
+ if(currentGradeNum <= targetGrade){
+   recommendationHTML = `<div class="recommendation-section"><div class="recommendation-title">🎉 목표 달성!</div><div class="recommendation-item">축하합니다! 현재 기록으로 목표한 <b>${targetGrade}등급</b>을 달성했습니다.</div></div>`;
+   document.getElementById('recommendationSection').innerHTML = recommendationHTML;
+   return;
+ }
+
+ const needScore = requiredScore - totalMeasuredScore;
+ recommendationHTML = `<div class="recommendation-section"><div class="recommendation-title">💪 ${targetGrade}등급 달성 가이드</div><div class="recommendation-item">현재 종합 결과는 <b>${currentGrade}</b>입니다.<br>${targetGrade}등급(${requiredScore}점) 달성을 위해 <b>${needScore}점</b>이 더 필요합니다.</div>`;
+ const improvableEvents = measuredEvents.filter(e => e.점수 < 20).sort((a,b) => a.점수 - b.점수);
+ if(improvableEvents.length === 0){
+   recommendationHTML += `<div class="recommendation-item">이미 모든 측정 종목이 만점에 가깝습니다. BMI나 전체 입력값을 다시 확인해보세요.</div>`;
+ } else {
+   improvableEvents.forEach(event => {
+     const targetScore = Math.min(20, event.점수 + Math.ceil(needScore / improvableEvents.length) + 2);
+     const range = getValueRangeForScore(event.name, targetScore);
+     recommendationHTML += `<div class="recommendation-item"><b>${event.name}</b> (현재 ${event.점수}점)<br>목표 점수: ${targetScore}점<br>필요 기록: ${formatGuide(event.name, range, event.unit)}</div>`;
+   });
+ }
+ recommendationHTML += `</div>`;
+ document.getElementById('recommendationSection').innerHTML = recommendationHTML;
+}
+
+document.addEventListener('keypress', function(e){ if(e.key === 'Enter') calculatePAPS(); });
+updateLiveScores();
+</script>
+</body>
+</html>
